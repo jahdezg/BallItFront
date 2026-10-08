@@ -1,11 +1,21 @@
-<header class="topbar">
-  <a class="brand" routerLink="/">🏀 Ball<span>It</span></a>
-  <nav>
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Analizar</a>
-    <a routerLink="/historial" routerLinkActive="active">Historial</a>
-    <a routerLink="/comparar" routerLinkActive="active">Comparar</a>
+<div class="app-frame">
+  <div class="screen">
+    <router-outlet />
+  </div>
+
+  <nav class="tabbar" aria-label="Navegación principal">
+    <a class="tab" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <app-icon name="home" /><span>Inicio</span>
+    </a>
+    <a class="tab" routerLink="/historial" routerLinkActive="active">
+      <app-icon name="clock" /><span>Historial</span>
+    </a>
+    <a class="fab" routerLink="/subir" aria-label="Analizar un tiro"><app-icon name="plus" [size]="28" /></a>
+    <a class="tab" routerLink="/comparar" routerLinkActive="active">
+      <app-icon name="trending-up" /><span>Progreso</span>
+    </a>
+    <a class="tab" routerLink="/perfil" routerLinkActive="active">
+      <app-icon name="user" /><span>Perfil</span>
+    </a>
   </nav>
-</header>
-<main class="container">
-  <router-outlet />
-</main>
+</div>

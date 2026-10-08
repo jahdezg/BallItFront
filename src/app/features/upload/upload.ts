@@ -3,19 +3,24 @@ import { Router } from '@angular/router';
 import { BallitApi } from '../../core/ballit-api.service';
 import { toApiError } from '../../core/error.util';
 import { Arm, Camera, Focus } from '../../core/models';
+import { ProfileService } from '../../core/profile.service';
+import { Icon } from '../../shared/icon';
+import { PageHeader } from '../../shared/page-header';
 
 const MAX_BYTES = 200 * 1024 * 1024; // mismo límite por defecto que la API
 
 @Component({
   selector: 'app-upload',
+  imports: [PageHeader, Icon],
   templateUrl: './upload.html',
 })
 export class UploadPage {
   private api = inject(BallitApi);
   private router = inject(Router);
+  private profile = inject(ProfileService);
 
   file = signal<File | null>(null);
-  arm = signal<Arm>('right');
+  arm = signal<Arm>(this.profile.arm());
   camera = signal<Camera>('frente');
   focus = signal<Focus>('completo');
   goal = signal('');

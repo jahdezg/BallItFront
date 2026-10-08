@@ -1,118 +1,164 @@
 @let r = result();
 @let c = r.coach;
 
-<section class="summary card">
-  <div class="score-ring" [class]="scoreClass()">
-    <span class="score-num">{{ r.summary.score }}</span>
-    <span class="score-sub">/ 100</span>
-  </div>
-  <div class="summary-info">
-    <h2>{{ r.summary.n }} {{ r.summary.n === 1 ? 'tiro detectado' : 'tiros detectados' }}</h2>
-    <p class="muted">{{ metric() }} promedio: <strong>{{ value(r.summary.mean) }}</strong></p>
-    <div class="chips">
-      <span class="badge bueno">{{ r.summary.n_bueno }} buenos</span>
-      <span class="badge dudoso">{{ r.summary.n_dudoso }} dudosos</span>
-      <span class="badge malo">{{ r.summary.n_malo }} malos</span>
-    </div>
+<app-analysis-video #player [result]="r" />
+
+<section class="card center">
+  <app-score-ring [score]="r.summary.score" [size]="150" />
+  <h2 class="mt">
+    {{ r.summary.n }} {{ r.summary.n === 1 ? 'tiro analizado' : 'tiros analizados' }}
+  </h2>
+  <p class="muted">
+    {{ metric() }} promedio: <strong>{{ value(r.summary.mean) }}</strong>
+  </p>
+  <div class="chips center-chips">
+    <span class="badge bueno">{{ r.summary.n_bueno }} buenos</span>
+    <span class="badge dudoso">{{ r.summary.n_dudoso }} dudosos</span>
+    <span class="badge malo">{{ r.summary.n_malo }} malos</span>
   </div>
 </section>
 
-<section class="card coach">
-  <h2>🧑‍🏫 Tu coach</h2>
-  <p class="coach-summary">{{ c.resumen }}</p>
+<div class="stat-grid two">
+  <div class="stat">
+    <strong>{{ r.summary.pct_bueno }}%</strong><span>Tiros buenos</span>
+  </div>
+  <div class="stat">
+    <strong>{{ r.summary.pct_pausa }}%</strong><span>Con pausa</span>
+  </div>
+</div>
 
-  @if (c.pedir_regrabar) {
-    <p class="note warn">Te recomendamos volver a grabar el tiro para poder evaluarlo bien.</p>
-  }
-
-  @if (c.lo_hiciste_bien.length) {
-    <h3>Lo hiciste bien</h3>
-    <ul class="ticks">
-      @for (t of c.lo_hiciste_bien; track $index) {
-        <li>{{ t }}</li>
-      }
-    </ul>
-  }
-
-  @if (c.puedes_mejorar.length) {
-    <h3>Puedes mejorar</h3>
-    <div class="improve-list">
-      @for (m of c.puedes_mejorar; track m.titulo) {
-        <article class="improve">
-          <h4>{{ m.titulo }}</h4>
-          <p><strong>Qué pasa:</strong> {{ m.que_pasa }}</p>
-          <p><strong>Por qué importa:</strong> {{ m.por_que_importa }}</p>
-          <p class="try"><strong>Intenta esto:</strong> {{ m.intenta_esto }}</p>
-        </article>
-      }
-    </div>
-  }
-
-  @if (c.sobre_tu_objetivo) {
-    <h3>Sobre tu objetivo</h3>
-    <p>{{ c.sobre_tu_objetivo }}</p>
-  }
-  @if (c.progreso) {
-    <h3>Tu progreso</h3>
-    <p>{{ c.progreso }}</p>
-  }
-</section>
-
-@if (r.quality.warnings.length || r.quality.note) {
+@if (r.shots.length > 1) {
   <section class="card">
-    @if (r.quality.note) {
-      <p class="note warn">{{ r.quality.note }}</p>
-    }
-    @for (w of r.quality.warnings; track $index) {
-      <p class="note warn">{{ w }}</p>
-    }
+    <h3>Evolución de tus lanzamientos</h3>
+    <app-shot-progress [shots]="orderedShots()" (momentSelected)="player.seek($event)" />
   </section>
 }
 
-<h2 class="section-title">Tus tiros</h2>
-<div class="shots">
-  @for (s of r.shots; track s.n) {
-    <article class="card shot">
-      <div class="shot-media">
-        @if (s.clip_url) {
-          <app-secure-media [path]="s.clip_url" kind="video" />
-        } @else {
-          <app-secure-media [path]="s.frame_url" kind="img" [alt]="'Tiro ' + s.n" />
-          @if (mediaPending()) {
-            <span class="media-tag">Generando clip…</span>
-          }
-        }
-      </div>
-      <div class="shot-info">
-        <div class="shot-head">
-          <h3>Tiro {{ s.n }}</h3>
-          <span class="badge" [class]="s.verdict">{{ verdictLabel[s.verdict] }}</span>
-        </div>
-        <dl>
-          <div><dt>Puntaje</dt><dd>{{ s.score }}/100</dd></div>
-          <div><dt>{{ metric() }}</dt><dd>{{ value(s.value) }}</dd></div>
-          <div>
-            <dt>Pausa antes del tiro</dt>
-            <dd>{{ s.has_pause ? 'Sí' + (s.pause_s != null ? ' (' + s.pause_s.toFixed(2) + ' s)' : '') : 'No detectada' }}</dd>
-          </div>
-        </dl>
-      </div>
-    </article>
-  }
-</div>
-
-<h2 class="section-title">Ángulo del brazo en el tiempo</h2>
-<div class="card">
+<section class="card">
+  <h3>Ángulo del brazo en el tiempo</h3>
   <app-angle-chart [frames]="r.frames" [shots]="r.shots" [rule]="r.rule" />
-  <p class="muted small">Las líneas verticales marcan el momento del lanzamiento de cada tiro.</p>
-</div>
+  <p class="muted small">Las líneas verticales marcan el momento de cada lanzamiento.</p>
+</section>
+
+<details class="card feedback-fold coach-fold">
+  <summary>
+    <span class="fold-heading"><strong>Tu coach</strong></span>
+    <span class="muted fold-preview">{{ c.resumen }}</span>
+    @if (topIssue(); as issue) {
+      <span class="fold-hint">A mejorar: {{ issue.titulo }}</span>
+    }
+    <span class="fold-hint">Ver recomendaciones completas</span>
+  </summary>
+  <div class="fold-content">
+    <div class="chat">
+      <div class="msg">
+        <div class="avatar">🧑‍🏫</div>
+        <div class="bubble">{{ c.resumen }}</div>
+      </div>
+
+      @if (c.pedir_regrabar) {
+        <div class="msg">
+          <div class="avatar">🧑‍🏫</div>
+          <div class="bubble warn">
+            Te recomiendo volver a grabar el tiro para poder evaluarlo bien.
+          </div>
+        </div>
+      }
+
+      @if (c.lo_hiciste_bien.length) {
+        <div class="msg">
+          <div class="avatar">🧑‍🏫</div>
+          <div class="bubble good">
+            <strong>Lo hiciste bien</strong>
+            <ul>
+              @for (t of c.lo_hiciste_bien; track $index) {
+                <li>{{ t }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+
+      @for (m of c.puedes_mejorar; track m.titulo; let i = $index) {
+        <div class="msg">
+          <div class="avatar">🧑‍🏫</div>
+          <div class="bubble">
+            <span class="pill">Mejora {{ i + 1 }}</span>
+            <h4>{{ m.titulo }}</h4>
+            <p>{{ m.que_pasa }}</p>
+            <p class="muted">{{ m.por_que_importa }}</p>
+            <div class="try-box">
+              <strong>Intenta esto</strong>
+              <p>{{ m.intenta_esto }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (c.sobre_tu_objetivo) {
+        <div class="msg">
+          <div class="avatar">🧑‍🏫</div>
+          <div class="bubble">
+            <strong>Sobre tu objetivo</strong>
+            <p>{{ c.sobre_tu_objetivo }}</p>
+          </div>
+        </div>
+      }
+      @if (c.progreso) {
+        <div class="msg">
+          <div class="avatar">🧑‍🏫</div>
+          <div class="bubble">
+            <strong>Tu progreso</strong>
+            <p>{{ c.progreso }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</details>
+
+@if (r.shots.length) {
+  <details
+    class="card feedback-fold moments-fold"
+    (toggle)="momentsOpen.set($any($event.target).open)"
+  >
+    <summary>
+      <span class="fold-heading"
+        ><strong>Momentos clave</strong
+        ><span class="muted small"
+          >{{ r.shots.length }} {{ r.shots.length === 1 ? 'lanzamiento' : 'lanzamientos' }}</span
+        ></span
+      >
+      <span class="fold-hint">Explorar video, métricas y ángulo de cada lanzamiento</span>
+    </summary>
+    <div class="fold-content">
+      @if (momentsOpen()) {
+        <app-shot-carousel
+          [analysisId]="r.analysis_id"
+          [shots]="orderedShots()"
+          [frames]="r.frames"
+          [rule]="r.rule"
+          [mediaPending]="mediaPending()"
+          (momentSelected)="player.seek($event)"
+        />
+      }
+    </div>
+  </details>
+}
+
+@if (r.quality.note) {
+  <p class="note warn">{{ r.quality.note }}</p>
+}
+@for (w of r.quality.warnings; track $index) {
+  <p class="note warn">{{ w }}</p>
+}
 
 <p class="note info">
-  Es una evaluación de la posición del codo con una regla provisional, calibrada con pocos videos. No mide
-  toda la técnica ni si el balón entra.
+  Es una evaluación de la posición del codo con una regla provisional, calibrada con pocos videos.
+  No mide toda la técnica ni si el balón entra.
 </p>
 
 <div class="actions">
-  <a class="btn primary" routerLink="/">Analizar otro video</a>
+  <a class="btn primary" routerLink="/subir">Analizar otro video</a>
   <a class="btn" routerLink="/historial">Ver historial</a>
 </div>

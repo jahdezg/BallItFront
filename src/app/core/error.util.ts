@@ -17,5 +17,6 @@ export function toApiError(err: unknown): ApiError {
     }
     return { code: 'ERROR', message: `Error ${err.status} del servidor` };
   }
-  return { code: 'ERROR', message: 'Ocurrió un error inesperado' };
+  const detail = err instanceof Error && err.message ? ` (${err.message})` : '';
+  return { code: 'ERROR', message: `Ocurrió un error inesperado${detail}` };
 }

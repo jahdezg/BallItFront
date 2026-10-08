@@ -1,25 +1,27 @@
-<section class="hero">
-  <h1>Corrige tu tiro libre</h1>
-  <p class="muted">
-    Sube un video de un tiro grabado <strong>de frente</strong>. Medimos la posición del codo y tu coach
-    te dice qué mejorar.
-  </p>
-</section>
+<app-page-header title="Nuevo análisis" back="/" />
+
+<div class="source-row">
+  <label class="btn primary">
+    <input type="file" accept="video/*" capture="environment" (change)="onFile($event)" hidden />
+    <app-icon name="video" [size]="20" /> Grabar con la cámara
+  </label>
+  <span class="muted small">o elige uno que ya tengas:</span>
+</div>
+
+<label class="dropzone" [class.has-file]="file()">
+  <input type="file" accept="video/*,.mov,.mp4,.m4v,.avi,.mkv" (change)="onFile($event)" hidden />
+  @if (file(); as f) {
+    <span class="dz-icon ok"><app-icon name="video" [size]="30" /></span>
+    <strong class="ellipsis">{{ f.name }}</strong>
+    <span class="muted small">{{ sizeMb(f) }} MB · toca para cambiar</span>
+  } @else {
+    <span class="dz-icon"><app-icon name="upload" [size]="30" /></span>
+    <strong>Elegir o grabar un video</strong>
+    <span class="muted small">mp4, mov, m4v, avi o mkv · máx. 200 MB</span>
+  }
+</label>
 
 <div class="card">
-  <label class="dropzone" [class.has-file]="file()">
-    <input type="file" accept="video/*,.mov,.mp4,.m4v,.avi,.mkv" (change)="onFile($event)" hidden />
-    @if (file(); as f) {
-      <span class="dz-icon">🎬</span>
-      <strong>{{ f.name }}</strong>
-      <span class="muted">{{ sizeMb(f) }} MB · toca para cambiar</span>
-    } @else {
-      <span class="dz-icon">⬆️</span>
-      <strong>Elegir o grabar un video</strong>
-      <span class="muted">mp4, mov, m4v, avi o mkv · máx. 200 MB</span>
-    }
-  </label>
-
   <div class="field">
     <span class="label">¿Con qué mano tiras?</span>
     <div class="seg">
@@ -28,23 +30,13 @@
     </div>
   </div>
 
-  <div class="grid-2">
-    <div class="field">
-      <label class="label" for="camera">Posición de la cámara</label>
-      <select id="camera" (change)="camera.set($any($event.target).value)">
-        <option value="frente" [selected]="camera() === 'frente'">De frente (recomendado)</option>
-        <option value="lateral" [selected]="camera() === 'lateral'">Lateral</option>
-        <option value="diagonal" [selected]="camera() === 'diagonal'">Diagonal</option>
-      </select>
-    </div>
-    <div class="field">
-      <label class="label" for="focus">Enfoque</label>
-      <select id="focus" (change)="focus.set($any($event.target).value)">
-        <option value="completo" [selected]="focus() === 'completo'">Completo</option>
-        <option value="brazo" [selected]="focus() === 'brazo'">Brazo</option>
-        <option value="postura" [selected]="focus() === 'postura'">Postura</option>
-      </select>
-    </div>
+  <div class="field">
+    <label class="label" for="camera">Posición de la cámara</label>
+    <select id="camera" (change)="camera.set($any($event.target).value)">
+      <option value="frente" [selected]="camera() === 'frente'">De frente (recomendado)</option>
+      <option value="lateral" [selected]="camera() === 'lateral'">Lateral</option>
+      <option value="diagonal" [selected]="camera() === 'diagonal'">Diagonal</option>
+    </select>
   </div>
 
   @if (camera() !== 'frente') {
@@ -54,6 +46,15 @@
   }
 
   <div class="field">
+    <label class="label" for="focus">Enfoque</label>
+    <select id="focus" (change)="focus.set($any($event.target).value)">
+      <option value="completo" [selected]="focus() === 'completo'">Completo</option>
+      <option value="brazo" [selected]="focus() === 'brazo'">Brazo</option>
+      <option value="postura" [selected]="focus() === 'postura'">Postura</option>
+    </select>
+  </div>
+
+  <div class="field flush">
     <label class="label" for="goal">Tu objetivo (opcional)</label>
     <textarea
       id="goal"
@@ -63,22 +64,23 @@
       (input)="goal.set($any($event.target).value)"
     ></textarea>
   </div>
+</div>
 
-  @if (error(); as e) {
-    <p class="note error">{{ e }}</p>
-  }
+<details class="card tips-fold">
+  <summary>Cómo grabar un buen video</summary>
+  <ul>
+    <li>Cámara fija, de frente al jugador, a la altura del pecho.</li>
+    <li>Una sola persona, con el cuerpo completo y el brazo que lanza visibles.</li>
+    <li>Buena iluminación. Incluye preparación, lanzamiento y un poco del movimiento posterior.</li>
+  </ul>
+</details>
 
+@if (error(); as e) {
+  <p class="note error">{{ e }}</p>
+}
+
+<div class="cta-bar">
   <button class="btn primary block" type="button" [disabled]="!file() || busy()" (click)="submit()">
     {{ busy() ? 'Subiendo video…' : 'Analizar mi tiro' }}
   </button>
-</div>
-
-<div class="card tips">
-  <h3>Cómo grabar</h3>
-  <ul>
-    <li>Cámara fija, de frente al jugador, a la altura del pecho.</li>
-    <li>Una sola persona con el cuerpo completo y el brazo que lanza visibles.</li>
-    <li>Buena iluminación. Incluye la preparación, el lanzamiento y un poco del movimiento posterior.</li>
-    <li>Para empezar, un video corto con un tiro (o varios tiros seguidos).</li>
-  </ul>
 </div>

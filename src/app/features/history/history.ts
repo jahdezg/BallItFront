@@ -4,10 +4,13 @@ import { BallitApi } from '../../core/ballit-api.service';
 import { toApiError } from '../../core/error.util';
 import { fmtDate } from '../../core/format';
 import { HistoryItem } from '../../core/models';
+import { Icon } from '../../shared/icon';
+import { PageHeader } from '../../shared/page-header';
+import { ScoreRing } from '../../shared/score-ring';
 
 @Component({
   selector: 'app-history',
-  imports: [RouterLink],
+  imports: [RouterLink, PageHeader, ScoreRing, Icon],
   templateUrl: './history.html',
 })
 export class HistoryPage {

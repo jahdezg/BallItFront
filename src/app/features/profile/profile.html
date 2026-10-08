@@ -1,0 +1,54 @@
+<app-page-header title="Perfil" />
+
+<div class="card center profile-top">
+  <div class="avatar-lg">{{ initial }}</div>
+  <div class="field">
+    <label class="label" for="name">Tu nombre</label>
+    <input
+      id="name"
+      type="text"
+      maxlength="30"
+      placeholder="¿Cómo te llamamos?"
+      [value]="profile.name()"
+      (input)="profile.name.set($any($event.target).value)"
+    />
+  </div>
+</div>
+
+<div class="card">
+  <span class="label">Mano con la que tiras</span>
+  <div class="seg">
+    <button type="button" [class.active]="profile.arm() === 'right'" (click)="profile.arm.set('right')">Derecha</button>
+    <button type="button" [class.active]="profile.arm() === 'left'" (click)="profile.arm.set('left')">Izquierda</button>
+  </div>
+  <p class="muted small mt">Se usará por defecto en cada análisis nuevo.</p>
+</div>
+
+<div class="card">
+  <h3 class="flush">Cómo funciona</h3>
+  <ol class="how">
+    <li>Grabas un tiro libre de frente.</li>
+    <li>Medimos la posición de tu codo en cada tiro.</li>
+    <li>Tu coach te explica qué corregir y cómo practicarlo.</li>
+  </ol>
+  <p class="note info">
+    La evaluación es solo del codo y usa una regla provisional, calibrada con pocos videos. No mide toda la
+    técnica ni si el balón entra.
+  </p>
+</div>
+
+<div class="card">
+  <h3 class="flush">Tus datos</h3>
+  <p class="muted small">
+    No hay cuenta ni contraseña: tu historial se asocia a este identificador, guardado en este navegador. Si
+    borras los datos del sitio, perderás el acceso a tus análisis anteriores.
+  </p>
+  <div class="id-row">
+    <code>{{ userId }}</code>
+    <button class="btn small" type="button" (click)="copyId()">
+      <app-icon name="copy" [size]="16" /> {{ copied() ? 'Copiado' : 'Copiar' }}
+    </button>
+  </div>
+</div>
+
+<p class="muted small center">BallIt · versión de prueba</p>

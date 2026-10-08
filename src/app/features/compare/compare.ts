@@ -5,11 +5,12 @@ import { BallitApi } from '../../core/ballit-api.service';
 import { toApiError } from '../../core/error.util';
 import { featureLabel, fmtDate, fmtValue } from '../../core/format';
 import { Comparison, HistoryItem, Rule } from '../../core/models';
+import { PageHeader } from '../../shared/page-header';
 import { SecureMedia } from '../../shared/secure-media';
 
 @Component({
   selector: 'app-compare',
-  imports: [SecureMedia],
+  imports: [SecureMedia, PageHeader],
   templateUrl: './compare.html',
 })
 export class ComparePage {

@@ -1,7 +1,5 @@
-<section class="hero">
-  <h1>Historial</h1>
-  <p class="muted">Tus análisis anteriores. Marca dos para ver si mejoraste.</p>
-</section>
+<app-page-header title="Historial" />
+<p class="muted small">Marca dos análisis para ver si mejoraste.</p>
 
 @if (error(); as e) {
   <p class="note error">{{ e }}</p>
@@ -9,9 +7,10 @@
 
 @if (items(); as list) {
   @if (!list.length) {
-    <div class="card center">
-      <p class="muted">Todavía no tienes análisis.</p>
-      <a class="btn primary" routerLink="/">Analizar mi primer tiro</a>
+    <div class="card empty">
+      <div class="empty-emoji">🕘</div>
+      <h2>Todavía no tienes análisis</h2>
+      <a class="btn primary" routerLink="/subir">Analizar mi primer tiro</a>
     </div>
   } @else {
     <div class="history-list">
@@ -25,24 +24,26 @@
             (change)="toggle(it.analysis_id)"
             [attr.aria-label]="'Seleccionar análisis del ' + fmtDate(it.created_at)"
           />
-          <div class="history-main">
-            <strong>{{ fmtDate(it.created_at) }}</strong>
-            <span class="muted small">{{ it.n }} {{ it.n === 1 ? 'tiro' : 'tiros' }} · {{ it.pct_bueno }}% buenos</span>
-          </div>
-          <div class="history-score">{{ it.score }}<small>/100</small></div>
-          <div class="history-actions">
-            <a class="btn small" [routerLink]="['/analisis', it.analysis_id]">Ver</a>
-            <button class="btn small danger" type="button" (click)="remove(it.analysis_id)">Eliminar</button>
-          </div>
+          <a class="history-link" [routerLink]="['/analisis', it.analysis_id]">
+            <app-score-ring [score]="it.score" [size]="54" />
+            <div class="history-main">
+              <strong>{{ fmtDate(it.created_at) }}</strong>
+              <span class="muted small">{{ it.n }} {{ it.n === 1 ? 'tiro' : 'tiros' }} · {{ it.pct_bueno }}% buenos</span>
+            </div>
+          </a>
+          <button class="icon-btn danger" type="button" (click)="remove(it.analysis_id)" aria-label="Eliminar">
+            <app-icon name="trash" [size]="20" />
+          </button>
         </article>
       }
     </div>
-    <div class="sticky-actions">
-      <button class="btn primary" type="button" [disabled]="!canCompare()" (click)="compare()">
+    <div class="cta-bar">
+      <button class="btn primary block" type="button" [disabled]="!canCompare()" (click)="compare()">
         Comparar seleccionados ({{ selected().length }}/2)
       </button>
     </div>
   }
 } @else if (!error()) {
-  <div class="card center"><p class="muted">Cargando…</p></div>
+  <div class="skeleton"></div>
+  <div class="skeleton short"></div>
 }

@@ -1,0 +1,89 @@
+<section class="home-head">
+  <p class="muted">{{ greeting() }} 👋</p>
+  <h1>Mejora tu <span class="accent">tiro libre</span></h1>
+</section>
+
+@if (streak(); as days) {
+  <section class="card" aria-label="Racha de entrenamiento">
+    <strong>🔥 {{ days }} {{ days === 1 ? 'día' : 'días' }} de racha</strong>
+    <p class="muted small flush">Sigue entrenando tu técnica</p>
+  </section>
+}
+
+<a class="cta-card" routerLink="/subir">
+  <div>
+    <strong>Analizar un tiro</strong>
+    <span>Sube un video y recibe correcciones de tu coach</span>
+  </div>
+  <span class="cta-go"><app-icon name="chevron-right" [size]="26" /></span>
+</a>
+
+@if (error(); as e) {
+  <p class="note error">{{ e }}</p>
+}
+
+@if (items(); as list) {
+  @if (last(); as l) {
+    <h2 class="section-title">Tu último análisis</h2>
+    <a class="card last-card" [routerLink]="['/analisis', l.analysis_id]">
+      <app-score-ring [score]="l.score" [size]="84" />
+      <div class="last-info">
+        <strong>{{ l.n }} {{ l.n === 1 ? 'tiro' : 'tiros' }} · {{ l.pct_bueno }}% buenos</strong>
+        <span class="muted small">{{ fmtDate(l.created_at) }}</span>
+      </div>
+      <app-icon name="chevron-right" />
+    </a>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <strong>{{ list.length }}</strong
+        ><span>Análisis</span>
+      </div>
+      <div class="stat">
+        <strong>{{ totalShots() }}</strong
+        ><span>Tiros</span>
+      </div>
+      <div class="stat">
+        <strong>{{ avgGood() }}%</strong><span>Buenos</span>
+      </div>
+    </div>
+
+    @if (scores().length >= 2) {
+      <h2 class="section-title">Tu evolución</h2>
+      <div class="card trend-card">
+        <div class="trend-head">
+          <span class="muted small">Últimos {{ scores().length }} análisis</span>
+          @if (delta(); as d) {
+            <span class="delta" [class.up]="d > 0" [class.down]="d < 0">
+              {{ d > 0 ? '+' : '' }}{{ d }} pts vs. el anterior
+            </span>
+          }
+        </div>
+        <app-spark-line [values]="scores()" />
+      </div>
+    }
+  } @else if (!error()) {
+    <div class="card empty">
+      <div class="empty-emoji">🏀</div>
+      <h2>Aún no tienes análisis</h2>
+      <p class="muted">
+        Sube tu primer video de un tiro libre grabado de frente y empieza a ver tu progreso.
+      </p>
+      <a class="btn primary" routerLink="/subir">Analizar mi primer tiro</a>
+    </div>
+  }
+} @else {
+  <div class="skeleton"></div>
+  <div class="skeleton short"></div>
+}
+
+<h2 class="section-title">Consejos</h2>
+<div class="carousel tips-row">
+  @for (t of tips; track t.title) {
+    <article class="card tip">
+      <div class="tip-icon">{{ t.icon }}</div>
+      <h3>{{ t.title }}</h3>
+      <p class="muted">{{ t.text }}</p>
+    </article>
+  }
+</div>

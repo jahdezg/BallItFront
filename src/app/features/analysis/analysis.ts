@@ -5,11 +5,12 @@ import { EMPTY, catchError, map, switchMap, tap } from 'rxjs';
 import { BallitApi } from '../../core/ballit-api.service';
 import { toApiError } from '../../core/error.util';
 import { ApiError, JobState } from '../../core/models';
+import { PageHeader } from '../../shared/page-header';
 import { ResultView } from './result-view';
 
 @Component({
   selector: 'app-analysis',
-  imports: [RouterLink, ResultView],
+  imports: [RouterLink, ResultView, PageHeader],
   templateUrl: './analysis.html',
 })
 export class AnalysisPage {
@@ -43,6 +44,14 @@ export class AnalysisPage {
       )
       .subscribe((j) => this.job.set(j));
   }
+
+  protected tips = [
+    'Mantén el codo debajo del balón y apuntando al aro.',
+    'El tiro empieza en las piernas: flexiona y extiende con fluidez.',
+    'Termina el movimiento con el brazo extendido hacia el aro.',
+    'Repetir la misma rutina antes de cada tiro te hace más consistente.',
+  ];
+  tip = computed(() => this.tips[Math.min(this.tips.length - 1, Math.floor(this.percent() / 26))]);
 
   isRecordingIssue(code: string): boolean {
     return code === 'NO_PERSON' || code === 'NO_SHOT';
