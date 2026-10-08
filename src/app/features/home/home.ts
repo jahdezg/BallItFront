@@ -8,6 +8,7 @@ import { ProfileService } from '../../core/profile.service';
 import { Icon } from '../../shared/icon';
 import { ScoreRing } from '../../shared/score-ring';
 import { SparkLine } from '../../shared/spark-line';
+import { trainingStreak } from '../../core/streak';
 
 const TIPS = [
   {
@@ -56,12 +57,17 @@ export class HomePage {
     [...(this.items() ?? [])].sort((a, b) => a.created_at.localeCompare(b.created_at)),
   );
   last = computed(() => this.sorted().at(-1) ?? null);
-  scores = computed(() => this.sorted().slice(-8).map((i) => i.score));
+  scores = computed(() =>
+    this.sorted()
+      .slice(-8)
+      .map((i) => i.score),
+  );
   delta = computed(() => {
     const s = this.sorted();
     return s.length >= 2 ? s[s.length - 1].score - s[s.length - 2].score : null;
   });
   totalShots = computed(() => this.sorted().reduce((acc, i) => acc + i.n, 0));
+  streak = computed(() => trainingStreak((this.items() ?? []).map((item) => item.created_at)));
   avgGood = computed(() => {
     const s = this.sorted();
     return s.length ? Math.round(s.reduce((acc, i) => acc + i.pct_bueno, 0) / s.length) : 0;

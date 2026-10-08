@@ -3,6 +3,13 @@
   <h1>Mejora tu <span class="accent">tiro libre</span></h1>
 </section>
 
+@if (streak(); as days) {
+  <section class="card" aria-label="Racha de entrenamiento">
+    <strong>🔥 {{ days }} {{ days === 1 ? 'día' : 'días' }} de racha</strong>
+    <p class="muted small flush">Sigue entrenando tu técnica</p>
+  </section>
+}
+
 <a class="cta-card" routerLink="/subir">
   <div>
     <strong>Analizar un tiro</strong>
@@ -28,9 +35,17 @@
     </a>
 
     <div class="stat-grid">
-      <div class="stat"><strong>{{ list.length }}</strong><span>Análisis</span></div>
-      <div class="stat"><strong>{{ totalShots() }}</strong><span>Tiros</span></div>
-      <div class="stat"><strong>{{ avgGood() }}%</strong><span>Buenos</span></div>
+      <div class="stat">
+        <strong>{{ list.length }}</strong
+        ><span>Análisis</span>
+      </div>
+      <div class="stat">
+        <strong>{{ totalShots() }}</strong
+        ><span>Tiros</span>
+      </div>
+      <div class="stat">
+        <strong>{{ avgGood() }}%</strong><span>Buenos</span>
+      </div>
     </div>
 
     @if (scores().length >= 2) {
@@ -51,7 +66,9 @@
     <div class="card empty">
       <div class="empty-emoji">🏀</div>
       <h2>Aún no tienes análisis</h2>
-      <p class="muted">Sube tu primer video de un tiro libre grabado de frente y empieza a ver tu progreso.</p>
+      <p class="muted">
+        Sube tu primer video de un tiro libre grabado de frente y empieza a ver tu progreso.
+      </p>
       <a class="btn primary" routerLink="/subir">Analizar mi primer tiro</a>
     </div>
   }
